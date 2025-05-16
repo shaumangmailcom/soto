@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Clock In/Out</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      background: #f0f4f8;
+    }
+    .container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 30px;
+      justify-content: center;
+    }
+    .card {
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      padding: 20px;
+      width: 300px;
+      text-align: center;
+    }
+    h2 {
+      margin-top: 0;
+    }
+    .clock {
+      font-size: 1.5em;
+      margin: 10px 0;
+      font-weight: bold;
+    }
+    button {
+      padding: 10px 20px;
+      margin: 10px;
+      font-size: 1em;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    .clock-in {
+      background-color: #4caf50;
+      color: white;
+    }
+    .clock-out {
+      background-color: #f44336;
+      color: white;
+    }
+    .log {
+      margin-top: 15px;
+      text-align: left;
+      font-size: 0.9em;
+      background: #f9f9f9;
+      padding: 10px;
+      border-radius: 8px;
+      max-height: 150px;
+      overflow-y: auto;
+    }
+  </style>
+</head>
+<body>
+
+<h1>Clock In/Out Painting Crew</h1>
+
+<div class="container">
+  <div class="card">
+    <h2>José Franco</h2>
+    <button class="clock-in" onclick="logTime('José Franco', 'in')">Clock In</button>
+    <button class="clock-out" onclick="logTime('José Franco', 'out')">Clock Out</button>
+    <div class="log" id="log-José Franco"></div>
+  </div>
+
+  <div class="card">
+    <h2>Jafhet Franco</h2>
+    <button class="clock-in" onclick="logTime('Jafhet Franco', 'in')">Clock In</button>
+    <button class="clock-out" onclick="logTime('Jafhet Franco', 'out')">Clock Out</button>
+    <div class="log" id="log-Jafhet Franco"></div>
+  </div>
+</div>
+
+
+<script>
+  const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwdwrCwD1TgsJVU-4cVs-uEa5ZD8kfnTDSlL1itNNgs9IldInyekHvsrPGKhdq9Wfv2aA/exec";
+
+  function updateLATime() {
+    const options = {
+      timeZone: 'America/Los_Angeles',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      hour12: true,
+    };
+    const now = new Date().toLocaleTimeString('en-US', options);
+    document.getElementById('la-time').textContent = "Los Angeles Time:" <br> + now;
+  }
+  setInterval(updateLATime, 1000);
+  updateLATime();
+
+  function logTime(name, action) {
+    const dateTime = new Date().toISOString();
+    const displayTime = new Date().toLocaleString('en-US', { timeZone: 'America/Los_Angeles' });
+
+    const logDiv = document.getElementById('log-' + name);
+    const logEntry = document.createElement('div');
+    logEntry.textContent = `[${displayTime}] ${name} clocked ${action.toUpperCase()}`;
+    logDiv.prepend(logEntry);
+
+    const formData = new URLSearchParams();
+    formData.append('name', name);
+    formData.append('in_or_out', action);
+
+    fetch(SCRIPT_URL, {
+      method: 'POST',
+      body: formData
+    })
+    .then(res => res.json())
+    .then(data => {
+      console.log("Submitted to Google Sheet:", data);
+    })
+    .catch(err => {
+      console.error("Error submitting to Google Sheet:", err);
+    });
+  }
+</script>
+
+</body>
+</html>
